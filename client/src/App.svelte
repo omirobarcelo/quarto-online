@@ -3,10 +3,15 @@
 
   import Button from "smelte/src/components/Button";
 
+  import { myStore } from './stores/websocket.store.js';
+
   export let name: string;
+
+  $: console.log($myStore);
 
   function handler() {
 	  console.log('handled');
+    $myStore = { data: 'some_data' };
   }
 </script>
 
@@ -38,5 +43,9 @@
 
   <div class="py-2">
 	<Button light on:click={handler}>Button</Button>
+  </div>
+
+  <div>
+    {$myStore}
   </div>
 </main>
