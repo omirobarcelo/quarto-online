@@ -1,17 +1,39 @@
 <script lang="ts">
   import 'smelte/src/tailwind.css';
 
-  import Button from "smelte/src/components/Button";
+  import Entry from './pages/Entry.svelte';
 
-  import { myStore } from './stores/websocket.store.js';
+  import Button from 'smelte/src/components/Button';
+
+  import { myStore, selfStore, self } from './stores/websocket.store';
 
   export let name: string;
 
   $: console.log($myStore);
 
-  function handler() {
-	  console.log('handled');
-    $myStore = { data: 'some_data' };
+  function create() {
+    console.log('create');
+    $myStore = { kind: 'create' };
+  }
+
+  function join() {
+    console.log('join');
+    $myStore = { kind: 'join', data: { roomKey: '6580' } };
+  }
+
+  function echo() {
+    console.log('echo');
+    $myStore = { kind: 'echo' };
+  }
+
+  // function self() {
+  //   console.log('self');
+  //   $myStore = { kind: 'self' };
+  // }
+
+  function leave() {
+    console.log('leave');
+    $myStore = { kind: 'leave' };
   }
 </script>
 
@@ -42,10 +64,19 @@
   <p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
 
   <div class="py-2">
-	<Button light on:click={handler}>Button</Button>
+    <Button light on:click={create}>Create</Button>
+    <Button light on:click={join}>Join</Button>
+    <Button light on:click={echo}>Echo</Button>
+    <Button light on:click={self}>Self</Button>
+    <Button light on:click={leave}>Leave</Button>
   </div>
 
   <div>
-    {$myStore}
+    all: {$myStore.data}
   </div>
+  <div>
+    self: {$selfStore.data}
+  </div>
+
+  <Entry />
 </main>
