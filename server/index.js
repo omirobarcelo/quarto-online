@@ -54,7 +54,7 @@ function processMessage(client, { kind, data }) {
     case 'create':
       const roomKey = createRoom();
       client.roomKey = roomKey;
-      sendData(client, { roomKey });
+      sendData(client, 'create', { roomKey });
       break;
     case 'join':
       const success = joinRoom(client.uid, data?.roomKey);
@@ -89,7 +89,6 @@ function createRoom() {
     const roomNum = Math.floor(Math.random() * MAX_ROOMS);
     roomKey = roomNum.toString(10).padStart(KEY_LENGTH, '0');
   } while (Object.keys(rooms).includes(roomKey));
-  roomKey = '6580';
   rooms[roomKey] = [];
   return roomKey;
 }
@@ -130,10 +129,11 @@ function cleanRoom(client) {
 /**
  * Sends data to client
  * @param {WebSocket} client 
+ * @param {string} kind
  * @param {any} data 
  */
-function sendData(client, data) {
-  client.send(JSON.stringify({ data }));
+function sendData(client, kind, data) {
+  client.send(JSON.stringify({ kind, data }));
 }
 
 /**

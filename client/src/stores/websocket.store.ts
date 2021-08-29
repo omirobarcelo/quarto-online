@@ -2,24 +2,50 @@
 import websocketStore from 'svelte-websocket-store';
 import { derived } from 'svelte/store';
 
-const initialValue = { data: 'init' };
-export const myStore = websocketStore('ws://localhost:3000/', initialValue);
-
-interface WSData {
-  kind: string;
-  data: any;
+enum WSKind {
+  Init = 'init',
+  Self = 'self',
+  Create = 'create'
 }
-export const selfStore = derived(
-  myStore,
+
+abstract class WSData {
+  kind: WSKind;
+  data: any | undefined;
+  error: { msg: string } | undefined;
+}
+
+class WSCreateRes extends WSData {
+  kind = WSKind.Create;
+  data: { roomKey: string };
+}
+
+const initialValue = { kind: WSKind.Init };
+export const wsStore = websocketStore('ws://localhost:3000/', initialValue);
+
+export const selfWS = derived(
+  wsStore,
   ($myStore: WSData, set) => {
-    if ($myStore.kind === 'self') {
+    if ($myStore.kind === WSKind.Self) {
       set($myStore);
     }
   },
-  { kind: 'self', ...initialValue }
+  { kind: WSKind.Self }
 );
 
 export function self() {
-  console.log('self in store');
-  myStore.set({ kind: 'self' });
+  wsStore.set({ kind: WSKind.Self });
+}
+
+export const createWS = derived(
+  wsStore,
+  ($myStore: WSData, set) => {
+    if ($myStore.kind === WSKind.Create) {
+      set($myStore);
+    }
+  },
+  undefined as WSCreateRes
+);
+
+export function create() {
+  wsStore.set({ kind: WSKind.Create });
 }
