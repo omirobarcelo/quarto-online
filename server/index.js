@@ -14,6 +14,21 @@ const rooms = {};
 /** @type {{ [uid: string]: WebSocket }} */
 const clientUidMap = {};
 
+/** @type Array<string> */
+let emptyRooms = [];
+
+// Daily empty room cleanup
+// Necessary to do it in 2 steps (mark and remove) because if the current empty rooms are removed,
+// if the cleanup happens in between a client creates a room and joins it, the newly created room
+// would be removed
+if (!DEV) {
+  setInterval(() => {
+    unmarkEmptyRooms();
+    removeEmptyRooms();
+    markEmptyRooms();
+  }, 24 * 60 * 60 * 1000);
+}
+
 wss.getUniqueID = () => {
   const s4 = () =>
     Math.floor((1 + Math.random()) * 0x10000)
@@ -46,22 +61,25 @@ wss.on('connection', (ws) => {
 
 /**
  * Processess a message according to its kind
- * @param {WebSocket & { roomKey: string }} client 
- * @param {{ kind: string, data: any }} message 
+ * @param {WebSocket & { roomKey: string }} client
+ * @param {{ kind: string, data: any }} message
  */
 function processMessage(client, { kind, data }) {
   switch (kind) {
     case 'create':
       const roomKey = createRoom();
-      client.roomKey = roomKey;
-      sendData(client, 'create', { roomKey });
+      if (roomKey) {
+        sendData(client, 'create', { roomKey });
+      } else {
+        sendError(client, 'create', 'Maximum number of rooms created.');
+      }
       break;
     case 'join':
       const success = joinRoom(client.uid, data?.roomKey);
       if (success) {
         client.roomKey = data.roomKey;
       } else {
-        sendError(client, 'The room does not exist or is full.');
+        sendError(client, 'join', 'The room does not exist or is full.');
       }
       break;
     case 'echo':
@@ -73,7 +91,7 @@ function processMessage(client, { kind, data }) {
       cleanRoom(client);
       break;
     default:
-      sendError(client, `Sent message does not have a valid kind: ${kind}.`);
+      sendError(client, kind, `Sent message does not have a valid kind: ${kind}.`);
       break;
   }
 }
@@ -83,7 +101,10 @@ function processMessage(client, { kind, data }) {
  * @returns The key for the room
  */
 function createRoom() {
-  // TODO handle max rooms created
+  // TODO handle max rooms created error
+  if (Object.keys(rooms).length >= MAX_ROOMS) {
+    return undefined;
+  }
   let roomKey = '';
   do {
     const roomNum = Math.floor(Math.random() * MAX_ROOMS);
@@ -95,8 +116,8 @@ function createRoom() {
 
 /**
  * Joins a room
- * @param {string} uid 
- * @param {string} roomKey 
+ * @param {string} uid
+ * @param {string} roomKey
  * @returns true if successful join, false otherwise
  */
 function joinRoom(uid, roomKey) {
@@ -110,8 +131,8 @@ function joinRoom(uid, roomKey) {
 }
 
 /**
- * Removes the client from the room and deletes the room if empty
- * @param {WebSocket & { roomKey: string }} client 
+ * Removes the client from the room
+ * @param {WebSocket & { roomKey: string }} client
  */
 function cleanRoom(client) {
   const roomKey = client.roomKey;
@@ -120,17 +141,14 @@ function cleanRoom(client) {
     const room = rooms[roomKey];
     const idx = room.indexOf(client.uid);
     room.splice(idx, 1);
-    if (room.length === 0) {
-      delete rooms[roomKey];
-    }
   }
 }
 
 /**
  * Sends data to client
- * @param {WebSocket} client 
+ * @param {WebSocket} client
  * @param {string} kind
- * @param {any} data 
+ * @param {any} data
  */
 function sendData(client, kind, data) {
   client.send(JSON.stringify({ kind, data }));
@@ -138,8 +156,8 @@ function sendData(client, kind, data) {
 
 /**
  * Broadcasts data to entire room
- * @param {string} roomKey 
- * @param {any} data 
+ * @param {string} roomKey
+ * @param {any} data
  */
 function roomBroadcast(roomKey, data) {
   const room = rooms[roomKey];
@@ -147,7 +165,7 @@ function roomBroadcast(roomKey, data) {
     room.forEach((clientUid) => {
       const client = clientUidMap[clientUid];
       if (client) {
-        client.send(JSON.stringify({ data }))
+        client.send(JSON.stringify({ data }));
       }
     });
   }
@@ -155,9 +173,43 @@ function roomBroadcast(roomKey, data) {
 
 /**
  * Sends error to client
- * @param {WebSocket} client 
- * @param {string} errorMsg 
+ * @param {WebSocket} client
+ * @param {string} kind
+ * @param {string} errorMsg
  */
-function sendError(client, errorMsg) {
-  client.send(JSON.stringify({ error: { msg: errorMsg } }));
+function sendError(client, kind, errorMsg) {
+  client.send(JSON.stringify({ kind, error: { msg: errorMsg } }));
+}
+
+/**
+ * Removes occupied rooms that were marked as empty
+ */
+function unmarkEmptyRooms() {
+  const currentEmptyRooms = [];
+  emptyRooms.forEach((roomKey) => {
+    const room = rooms[roomKey];
+    if (room?.length === 0) {
+      currentEmptyRooms.push(roomKey);
+    }
+  });
+  emptyRooms = [...currentEmptyRooms];
+}
+
+/**
+ * Deletes empty rooms
+ */
+function removeEmptyRooms() {
+  emptyRooms.forEach((roomKey) => delete rooms[roomKey]);
+}
+
+/**
+ * Marks empty rooms
+ */
+function markEmptyRooms() {
+  emptyRooms = [];
+  Object.entries(rooms).forEach(([roomKey, room]) => {
+    if (room.length === 0) {
+      emptyRooms.push(roomKey);
+    }
+  });
 }

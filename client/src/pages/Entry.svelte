@@ -16,7 +16,11 @@
   }
 
   function join(roomKey: string) {
-    window.location.assign(`#${roomKey}`);
+    // WebSocket disconnects when navigating, causing that when reaching the room, initial
+    // messages are sent before the WebSocket reconnects
+    // A full reload works, but then we need to set the hash without navigating
+    window.history.pushState({ path: `#${roomKey}` }, roomKey, `#${roomKey}`);
+    window.location.reload();
   }
 </script>
 
@@ -54,6 +58,7 @@
   </div>
   <div class="mt-16 flex justify-center items-center space-x-4 py-2 h-72p">
     {#if !$createWS}
+      <!-- TODO limit infinite clicking -->
       <Button light on:click={create}>Create Room</Button>
     {:else}
       <div class="flex justify-center items-center space-x-0.5">

@@ -2,10 +2,11 @@
 import websocketStore from 'svelte-websocket-store';
 import { derived } from 'svelte/store';
 
-enum WSKind {
+export enum WSKind {
   Init = 'init',
   Self = 'self',
-  Create = 'create'
+  Create = 'create',
+  Join = 'join'
 }
 
 abstract class WSData {
@@ -24,9 +25,9 @@ export const wsStore = websocketStore('ws://localhost:3000/', initialValue);
 
 export const selfWS = derived(
   wsStore,
-  ($myStore: WSData, set) => {
-    if ($myStore.kind === WSKind.Self) {
-      set($myStore);
+  ($wsStore: WSData, set) => {
+    if ($wsStore.kind === WSKind.Self) {
+      set($wsStore);
     }
   },
   { kind: WSKind.Self }
@@ -38,9 +39,9 @@ export function self() {
 
 export const createWS = derived(
   wsStore,
-  ($myStore: WSData, set) => {
-    if ($myStore.kind === WSKind.Create) {
-      set($myStore);
+  ($wsStore: WSData, set) => {
+    if ($wsStore.kind === WSKind.Create) {
+      set($wsStore);
     }
   },
   undefined as WSCreateRes
@@ -49,3 +50,18 @@ export const createWS = derived(
 export function create() {
   wsStore.set({ kind: WSKind.Create });
 }
+
+export function join(roomKey: string) {
+  console.log('join');
+  wsStore.set({ kind: WSKind.Join, data: { roomKey } });
+}
+
+export const errorWS = derived(
+  wsStore,
+  ($wsStore: WSData, set) => {
+    if ($wsStore.error) {
+      set($wsStore);
+    }
+  },
+  undefined as WSData
+);

@@ -25,6 +25,6 @@
   {#if !hash}
     <Entry />
   {:else}
-    <Game roomKey={hash} />
+    <Game roomKey={hash.slice(1)} />
   {/if}
 </main>
