@@ -61,7 +61,7 @@ wss.on('connection', (ws) => {
 
 /**
  * Processess a message according to its kind
- * @param {WebSocket & { roomKey: string }} client
+ * @param {WebSocket & { uid: string; roomKey: string | undefined }} client
  * @param {{ kind: string, data: any }} message
  */
 function processMessage(client, { kind, data }) {
@@ -78,13 +78,29 @@ function processMessage(client, { kind, data }) {
       const success = joinRoom(client.uid, data?.roomKey);
       if (success) {
         client.roomKey = data.roomKey;
+        sendData(client, 'join', { success: true });
       } else {
         sendError(client, 'join', 'The room does not exist or is full.');
       }
       break;
     case 'echo':
       if (client.roomKey) {
-        roomBroadcast(client.roomKey, 'echoed');
+        roomBroadcast(client.roomKey, 'echo', 'echoed');
+      }
+      break;
+    case 'req-state':
+      if (client.roomKey) {
+        const room = rooms[client.roomKey];
+        // If room only has one client, the current client owns the state
+        // so it does not need to request it
+        if (room.length > 1) {
+          sendData(clientUidMap[room[0]], 'req-state', {});
+        }
+      }
+      break;
+    case 'state':
+      if (client.roomKey) {
+        roomBroadcast(client.roomKey, 'state', data);
       }
       break;
     case 'leave':
@@ -157,15 +173,16 @@ function sendData(client, kind, data) {
 /**
  * Broadcasts data to entire room
  * @param {string} roomKey
+ * @param {string} kind
  * @param {any} data
  */
-function roomBroadcast(roomKey, data) {
+function roomBroadcast(roomKey, kind, data) {
   const room = rooms[roomKey];
   if (room) {
     room.forEach((clientUid) => {
       const client = clientUidMap[clientUid];
       if (client) {
-        client.send(JSON.stringify({ data }));
+        client.send(JSON.stringify({ kind, data }));
       }
     });
   }

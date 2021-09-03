@@ -1,11 +1,17 @@
 <script lang="ts">
   import Button from 'smelte/src/components/Button';
 
-  import { errorWS, join, WSKind } from '../stores/websocket.store';
+  import { gameState } from '../stores/game.store';
+  import { errorWS, join, WSKind, sendState } from '../stores/websocket.store';
 
   export let roomKey: string;
 
   join(roomKey);
+
+  function update() {
+    gameState.roll();
+    sendState();
+  }
 </script>
 
 <style>
@@ -26,5 +32,8 @@
 {:else}
   <div class="flex flex-col justify-center items-center">
     <div>This is the Game {roomKey}</div>
+    <div>Game state: {JSON.stringify($gameState, undefined, 2)}</div>
+    <Button on:click={update}>Roll</Button>
+    <Button on:click={gameState.restart}>Reset</Button>
   </div>
 {/if}
