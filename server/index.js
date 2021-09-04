@@ -11,7 +11,7 @@ const KEY_LENGTH = 4;
 /** @type {{ [roomKey: string]: Array<string> }} */
 const rooms = {};
 
-/** @type {{ [uid: string]: WebSocket }} */
+/** @type {{ [uid: string]: WebSocket & { uid: string; roomKey: string | undefined; player: number | undefined }} */
 const clientUidMap = {};
 
 /** @type Array<string> */
@@ -61,7 +61,7 @@ wss.on('connection', (ws) => {
 
 /**
  * Processess a message according to its kind
- * @param {WebSocket & { uid: string; roomKey: string | undefined }} client
+ * @param {WebSocket & { uid: string; roomKey: string | undefined; player: number | undefined }} client
  * @param {{ kind: string, data: any }} message
  */
 function processMessage(client, { kind, data }) {
@@ -78,7 +78,9 @@ function processMessage(client, { kind, data }) {
       const success = joinRoom(client.uid, data?.roomKey);
       if (success) {
         client.roomKey = data.roomKey;
-        sendData(client, 'join', { success: true });
+        const room = rooms[client.roomKey];
+        client.player = room.length === 1 ? 0 : (clientUidMap[room[0]].player + 1) % ROOM_SIZE;
+        sendData(client, 'join', { success: true, player: client.player });
       } else {
         sendError(client, 'join', 'The room does not exist or is full.');
       }

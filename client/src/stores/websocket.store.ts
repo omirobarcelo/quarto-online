@@ -2,7 +2,7 @@
 import websocketStore from 'svelte-websocket-store';
 import { derived, get } from 'svelte/store';
 
-import { gameState } from './game.store';
+import { gameState, setPlayer } from './game.store';
 
 export enum WSKind {
   Init = 'init',
@@ -26,7 +26,7 @@ class WSCreateRes extends WSData {
 
 class WSJoinRes extends WSData {
   kind = WSKind.Join;
-  data: { success: boolean };
+  data: { success: boolean; player: number };
 }
 
 class WSReqStateRes extends WSData {
@@ -36,7 +36,7 @@ class WSReqStateRes extends WSData {
 
 class WSStateRes extends WSData {
   kind = WSKind.State;
-  data: { die: number } | null;
+  data: { die: number, turn: number } | null;
 }
 
 const initialValue = { kind: WSKind.Init };
@@ -83,6 +83,7 @@ export const joinWS = derived(
 joinWS.subscribe(({ data }) => {
   if (data.success) {
     requestState();
+    setPlayer(data.player);
   }
 });
 

@@ -1,14 +1,32 @@
-import { writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
+
+interface GameState {
+  die: number;
+  turn: number;
+}
+
+const INITIAL_STATE: GameState = {
+  die: 1,
+  turn: 0
+};
+
+let _player: number;
 
 function initGameState() {
-  const { subscribe, set } = writable({ die: 1 });
+  const { subscribe, set, update } = writable(INITIAL_STATE);
 
   return {
     subscribe,
     set,
-    restart: () => set({ die: 1 }),
-    roll: () => set({ die: Math.floor(Math.random() * 6) + 1 })
+    restart: () => set(INITIAL_STATE),
+    roll: () => update(state => ({ die: Math.floor(Math.random() * 6) + 1, turn: state.turn + 1 }))
   };
 }
 
 export const gameState = initGameState();
+
+export const setPlayer = (player: number) => _player = player;
+
+// When first player joins, the game state is set before _player is set, causing $ownTurn to be false
+// when the second player joins the state is broadcasted, also updating ownTurn
+export const ownTurn = derived(gameState, ({ turn }) => turn % 2 === _player);
