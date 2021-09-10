@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from 'smelte/src/components/Button';
-  
+
   import { WSKind } from '../data/websocket-kind.enum';
   import { gameState, ownTurn } from '../stores/game.store';
   import {
@@ -17,8 +17,8 @@
 
   join(roomKey);
 
-  function update() {
-    gameState.roll();
+  function restart() {
+    gameState.restart();
     sendState();
   }
 </script>
@@ -42,7 +42,7 @@
   <div class="flex flex-col justify-center items-center">
     <div>This is the Game {roomKey}</div>
     <div>Game state: {JSON.stringify($gameState, undefined, 2)}</div>
-    <Button on:click={update} disabled={!$ownTurn}>Roll</Button>
+    <Button on:click={restart} disabled={!$ownTurn}>Restart</Button>
     <Button on:click={declareWin} disabled={!$ownTurn}>Win</Button>
     <Button on:click={concede} disabled={!$winDeclarationWS}>Concede</Button>
 

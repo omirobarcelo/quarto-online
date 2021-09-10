@@ -4,7 +4,6 @@ import type { GameState } from '../data/game-state.interface';
 import { Piece } from '../data/piece.enum';
 
 const INITIAL_STATE: GameState = {
-  die: 1,
   turn: 0,
   board: [
     [null, null, null, null],
@@ -25,7 +24,23 @@ function initGameState() {
     subscribe,
     set,
     restart: () => set(INITIAL_STATE),
-    roll: () => update((state) => ({ ...state, die: Math.floor(Math.random() * 6) + 1, turn: state.turn + 1 }))
+    selectPiece: (piece: Piece) =>
+      update((state) => ({
+        ...state,
+        pieceSelected: piece,
+        piecesLeft: state.piecesLeft.filter((p) => p !== piece),
+        turn: state.turn + 1
+      })),
+    playPiece: (x: number, y: number) =>
+      update((state) => ({
+        ...state,
+        board: Object.assign([...state.board], {
+          [x]: Object.assign([...state.board[x]], {
+            [y]: state.pieceSelected
+          })
+        }),
+        pieceSelected: null
+      }))
   };
 }
 
@@ -36,3 +51,7 @@ export const setPlayer = (player: number) => (_player = player);
 // When first player joins, the game state is set before _player is set, causing $ownTurn to be false
 // when the second player joins the state is broadcasted, also updating ownTurn
 export const ownTurn = derived(gameState, ({ turn }) => turn % 2 === _player);
+
+export const board = derived(gameState, ({ board }) => board);
+export const piecesLeft = derived(gameState, ({ piecesLeft }) => piecesLeft);
+export const pieceSelected = derived(gameState, ({ pieceSelected }) => pieceSelected);
