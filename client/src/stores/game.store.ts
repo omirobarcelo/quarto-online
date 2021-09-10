@@ -1,9 +1,6 @@
 import { derived, writable } from 'svelte/store';
 
-interface GameState {
-  die: number;
-  turn: number;
-}
+import type { GameState } from '../data/game-state.interface';
 
 const INITIAL_STATE: GameState = {
   die: 1,

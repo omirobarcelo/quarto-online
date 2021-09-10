@@ -1,8 +1,17 @@
 <script lang="ts">
   import Button from 'smelte/src/components/Button';
-
+  
+  import { WSKind } from '../data/websocket-kind.enum';
   import { gameState, ownTurn } from '../stores/game.store';
-  import { concede, concedeWS, declareWin, errorWS, join, WSKind, sendState, winDeclarationWS } from '../stores/websocket.store';
+  import {
+    concede,
+    concedeWS,
+    declareWin,
+    errorWS,
+    join,
+    sendState,
+    winDeclarationWS
+  } from '../stores/websocket.store';
 
   export let roomKey: string;
 
@@ -36,7 +45,7 @@
     <Button on:click={update} disabled={!$ownTurn}>Roll</Button>
     <Button on:click={declareWin} disabled={!$ownTurn}>Win</Button>
     <Button on:click={concede} disabled={!$winDeclarationWS}>Concede</Button>
-    
+
     {#if $concedeWS}
       <div>You win!</div>
     {/if}

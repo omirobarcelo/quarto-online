@@ -2,44 +2,9 @@
 import websocketStore from 'svelte-websocket-store';
 import { derived, get } from 'svelte/store';
 
+import type { WSCreateRes, WSData, WSJoinRes, WSReqStateRes, WSStateRes } from '../data/websocket-data.class';
+import { WSKind } from '../data/websocket-kind.enum';
 import { gameState, setPlayer } from './game.store';
-
-export enum WSKind {
-  Init = 'init',
-  Self = 'self',
-  Create = 'create',
-  Join = 'join',
-  ReqState = 'req-state',
-  State = 'state',
-  Win = 'win',
-  Concede = 'concede'
-}
-
-abstract class WSData {
-  kind: WSKind;
-  data: any | undefined;
-  error: { msg: string } | undefined;
-}
-
-class WSCreateRes extends WSData {
-  kind = WSKind.Create;
-  data: { roomKey: string };
-}
-
-class WSJoinRes extends WSData {
-  kind = WSKind.Join;
-  data: { success: boolean; player: number };
-}
-
-class WSReqStateRes extends WSData {
-  kind = WSKind.ReqState;
-  data: undefined;
-}
-
-class WSStateRes extends WSData {
-  kind = WSKind.State;
-  data: { die: number, turn: number } | null;
-}
 
 const initialValue = { kind: WSKind.Init };
 export const wsStore = websocketStore('ws://localhost:3000/', initialValue);
