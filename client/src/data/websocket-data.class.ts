@@ -1,3 +1,4 @@
+import type { GameState } from './game-state.interface';
 import { WSKind } from './websocket-kind.enum';
 
 export abstract class WSData {
@@ -23,5 +24,5 @@ export class WSReqStateRes extends WSData {
 
 export class WSStateRes extends WSData {
   kind = WSKind.State;
-  data: { die: number; turn: number } | null;
+  data: GameState | null;
 }
