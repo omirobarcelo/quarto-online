@@ -105,6 +105,22 @@ function processMessage(client, { kind, data }) {
         roomBroadcast(client.roomKey, 'state', data);
       }
       break;
+    case 'win':
+      if (client.roomKey) {
+        const room = rooms[client.roomKey];
+        const idx = room.indexOf(client.uid);
+        const otherClientsUid = [...room.slice(0, idx), ...room.slice(idx + 1)];
+        otherClientsUid.forEach(clientUid => sendData(clientUidMap[clientUid], 'win', {}));
+      }
+      break;
+    case 'concede':
+      if (client.roomKey) {
+        const room = rooms[client.roomKey];
+        const idx = room.indexOf(client.uid);
+        const otherClientsUid = [...room.slice(0, idx), ...room.slice(idx + 1)];
+        otherClientsUid.forEach(clientUid => sendData(clientUidMap[clientUid], 'concede', {}));
+      }
+      break;
     case 'leave':
       cleanRoom(client);
       break;

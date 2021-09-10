@@ -2,7 +2,7 @@
   import Button from 'smelte/src/components/Button';
 
   import { gameState, ownTurn } from '../stores/game.store';
-  import { errorWS, join, WSKind, sendState } from '../stores/websocket.store';
+  import { concede, concedeWS, declareWin, errorWS, join, WSKind, sendState, winDeclarationWS } from '../stores/websocket.store';
 
   export let roomKey: string;
 
@@ -34,6 +34,11 @@
     <div>This is the Game {roomKey}</div>
     <div>Game state: {JSON.stringify($gameState, undefined, 2)}</div>
     <Button on:click={update} disabled={!$ownTurn}>Roll</Button>
-    <Button on:click={gameState.restart}>Reset</Button>
+    <Button on:click={declareWin} disabled={!$ownTurn}>Win</Button>
+    <Button on:click={concede} disabled={!$winDeclarationWS}>Concede</Button>
+    
+    {#if $concedeWS}
+      <div>You win!</div>
+    {/if}
   </div>
 {/if}

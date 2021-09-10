@@ -10,7 +10,9 @@ export enum WSKind {
   Create = 'create',
   Join = 'join',
   ReqState = 'req-state',
-  State = 'state'
+  State = 'state',
+  Win = 'win',
+  Concede = 'concede'
 }
 
 abstract class WSData {
@@ -132,6 +134,34 @@ stateWS.subscribe(({ data }) => {
 
 export function sendState() {
   wsStore.set({ kind: WSKind.State, data: get(gameState) });
+}
+
+export const winDeclarationWS = derived(
+  wsStore,
+  ($wsStore: WSData, set) => {
+    if ($wsStore.kind === WSKind.Win) {
+      set(true);
+    }
+  },
+  false
+);
+
+export function declareWin() {
+  wsStore.set({ kind: WSKind.Win });
+}
+
+export const concedeWS = derived(
+  wsStore,
+  ($wsStore: WSData, set) => {
+    if ($wsStore.kind === WSKind.Concede) {
+      set(true);
+    }
+  },
+  false
+);
+
+export function concede() {
+  wsStore.set({ kind: WSKind.Concede });
 }
 
 export const errorWS = derived(
