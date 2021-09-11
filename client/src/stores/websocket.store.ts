@@ -2,9 +2,9 @@
 import websocketStore from 'svelte-websocket-store';
 import { derived, get } from 'svelte/store';
 
-import type { WSCreateRes, WSData, WSJoinRes, WSReqStateRes, WSStateRes } from '../data/websocket-data.class';
+import type { WSCreateRes, WSData, WSJoinRes, WSReqStateRes, WSStateRes, WSWinRes } from '../data/websocket-data.class';
 import { WSKind } from '../data/websocket-kind.enum';
-import { gameState, setPlayer } from './game.store';
+import { finished, gameState, getPlayer, setPlayer } from './game.store';
 
 const initialValue = { kind: WSKind.Init };
 export const wsStore = websocketStore('ws://localhost:3000/', initialValue);
@@ -102,10 +102,13 @@ export function sendState() {
 }
 
 export const winDeclarationWS = derived(
-  wsStore,
-  ($wsStore: WSData, set) => {
-    if ($wsStore.kind === WSKind.Win) {
+  [wsStore, finished],
+  ([$wsStore, $finished], set) => {
+    if (($wsStore as WSData).kind === WSKind.Win && ($wsStore as WSWinRes).data.player !== getPlayer()) {
       set(true);
+    }
+    if ($finished) {
+      set(false);
     }
   },
   false
@@ -113,20 +116,6 @@ export const winDeclarationWS = derived(
 
 export function declareWin() {
   wsStore.set({ kind: WSKind.Win });
-}
-
-export const concedeWS = derived(
-  wsStore,
-  ($wsStore: WSData, set) => {
-    if ($wsStore.kind === WSKind.Concede) {
-      set(true);
-    }
-  },
-  false
-);
-
-export function concede() {
-  wsStore.set({ kind: WSKind.Concede });
 }
 
 export const errorWS = derived(

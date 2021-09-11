@@ -5,6 +5,5 @@ export enum WSKind {
   Join = 'join',
   ReqState = 'req-state',
   State = 'state',
-  Win = 'win',
-  Concede = 'concede'
+  Win = 'win'
 }

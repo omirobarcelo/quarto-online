@@ -6,4 +6,5 @@ export interface GameState {
   board: (Piece | null)[][];
   piecesLeft: Piece[];
   pieceSelected: Piece | null;
+  finished: boolean;
 }

@@ -1,12 +1,13 @@
 <script lang="ts">
   import Button from 'smelte/src/components/Button';
+import EndGameActions from '../components/EndGameActions.svelte';
+import EndGameDialog from '../components/EndGameDialog.svelte';
 import PiecesLeft from '../components/PiecesLeft.svelte';
+import SelectedPiece from '../components/SelectedPiece.svelte';
 
   import { WSKind } from '../data/websocket-kind.enum';
-  import { gameState, ownTurn } from '../stores/game.store';
+  import { finished, gameState, ownTurn } from '../stores/game.store';
   import {
-    concede,
-    concedeWS,
     declareWin,
     errorWS,
     join,
@@ -51,6 +52,10 @@ import PiecesLeft from '../components/PiecesLeft.svelte';
   .pieces-left-area {
     flex: 1;
   }
+
+  .end-game-actions-area {
+    flex: 1;
+  }
 </style>
 
 {#if $errorWS?.kind === WSKind.Join}
@@ -75,10 +80,21 @@ import PiecesLeft from '../components/PiecesLeft.svelte';
     Game {roomKey}
   </header>
   <div class="flex content">
-    <div class="bg-gray-500 h-full p-2 selected-piece-area"></div>
+    <div class="h-full p-2 flex flex-col items-center selected-piece-area">
+      <div class="mt-4">
+        <SelectedPiece></SelectedPiece>
+      </div>
+      <div class="w-full flex justify-center items-center end-game-actions-area">
+        <EndGameActions></EndGameActions>
+      </div>
+    </div>
     <div class="bg-blue-200 h-full p-2 game-area"></div>
     <div class="h-full p-2 pieces-left-area">
       <PiecesLeft></PiecesLeft>
     </div>
   </div>
+
+  {#if $finished}
+    <EndGameDialog></EndGameDialog>
+  {/if}
 {/if}

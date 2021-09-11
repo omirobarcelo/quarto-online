@@ -26,3 +26,8 @@ export class WSStateRes extends WSData {
   kind = WSKind.State;
   data: GameState | null;
 }
+
+export class WSWinRes extends WSData {
+  kind = WSKind.Win;
+  data: { player: number };
+}
