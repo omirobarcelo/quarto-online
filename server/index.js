@@ -43,14 +43,8 @@ wss.on('connection', (ws) => {
   if (DEV) console.log(`Client ${ws.uid} connected`);
   ws.on('message', (data) => {
     data = JSON.parse(data);
-    console.log(data, data.kind);
-    console.log('rooms', rooms);
-    console.log('clients', Object.keys(clientUidMap));
-    if (data.kind === 'self') {
-      ws.send(JSON.stringify({ kind: 'self', data: 'received' }));
-    } else {
-      processMessage(ws, data);
-    }
+    if (DEV) console.log(`Preprocessing ${data.kind}:\n${JSON.stringify(data.data, undefined, 2)}`);
+    processMessage(ws, data);
   });
   ws.on('close', () => {
     if (DEV) console.log(`Client ${ws.uid} disconnected`);
@@ -83,11 +77,6 @@ function processMessage(client, { kind, data }) {
         sendData(client, 'join', { success: true, player: client.player });
       } else {
         sendError(client, 'join', 'The room does not exist or is full.');
-      }
-      break;
-    case 'echo':
-      if (client.roomKey) {
-        roomBroadcast(client.roomKey, 'echo', 'echoed');
       }
       break;
     case 'req-state':

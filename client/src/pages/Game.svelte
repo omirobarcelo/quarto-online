@@ -7,17 +7,12 @@
   import PiecesLeft from '../components/PiecesLeft.svelte';
   import SelectedPiece from '../components/SelectedPiece.svelte';
   import { WSKind } from '../data/websocket-kind.enum';
-  import { finished,gameState } from '../stores/game.store';
-  import { errorWS, join, sendState } from '../stores/websocket.store';
+  import { finished } from '../stores/game.store';
+  import { errorWS, join } from '../stores/websocket.store';
 
   export let roomKey: string;
 
   join(roomKey);
-
-  function restart() {
-    gameState.restart();
-    sendState();
-  }
 </script>
 
 <style>
@@ -66,21 +61,21 @@
   <div class="flex content">
     <div class="h-full p-2 flex flex-col items-center selected-piece-area">
       <div class="mt-4">
-        <SelectedPiece></SelectedPiece>
+        <SelectedPiece />
       </div>
       <div class="w-full flex justify-center items-center end-game-actions-area">
-        <EndGameActions></EndGameActions>
+        <EndGameActions />
       </div>
     </div>
     <div class="h-full p-2 flex justify-center items-center board-area">
-      <Board></Board>
+      <Board />
     </div>
     <div class="h-full p-2 pieces-left-area">
-      <PiecesLeft></PiecesLeft>
+      <PiecesLeft />
     </div>
   </div>
 
   {#if $finished}
-    <EndGameDialog></EndGameDialog>
+    <EndGameDialog />
   {/if}
 {/if}

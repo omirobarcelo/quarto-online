@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "querto-online-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "WebSocket server to play Quarto online",
   "main": "index.js",
   "engines": {
     "node": "14.15.x"
@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "@omirobarcelo",
   "license": "ISC",
   "dependencies": {
     "bufferutil": "^4.0.3",

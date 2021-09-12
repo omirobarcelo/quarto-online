@@ -48,7 +48,7 @@ export default {
       }
     }),
     smelte({
-      purge: production,
+      purge: false,
       output: 'public/global.css', // it defaults to static/global.css which is probably what you expect in Sapper
       postcss: [], // Your PostCSS plugins
       whitelist: [], // Array of classnames whitelisted from purging

@@ -7,21 +7,7 @@ import { WSKind } from '../data/websocket-kind.enum';
 import { finished, gameState, getPlayer, setPlayer } from './game.store';
 
 const initialValue = { kind: WSKind.Init };
-export const wsStore = websocketStore('ws://localhost:3000/', initialValue);
-
-export const selfWS = derived(
-  wsStore,
-  ($wsStore: WSData, set) => {
-    if ($wsStore.kind === WSKind.Self) {
-      set($wsStore);
-    }
-  },
-  { kind: WSKind.Self }
-);
-
-export function self() {
-  wsStore.set({ kind: WSKind.Self });
-}
+const wsStore = websocketStore('ws://localhost:3000/', initialValue);
 
 export const createWS = derived(
   wsStore,
@@ -55,7 +41,6 @@ joinWS.subscribe(({ data }) => {
 });
 
 export function join(roomKey: string) {
-  console.log('join');
   wsStore.set({ kind: WSKind.Join, data: { roomKey } });
 }
 
@@ -71,7 +56,6 @@ export const reqStateWS = derived(
 
 reqStateWS.subscribe((wsMsg) => {
   if (wsMsg) {
-    console.log('send state');
     sendState();
   }
 });
@@ -92,7 +76,6 @@ export const stateWS = derived(
 
 stateWS.subscribe(({ data }) => {
   if (data) {
-    console.log('set state');
     gameState.set(data);
   }
 });
