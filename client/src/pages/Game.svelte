@@ -1,19 +1,14 @@
 <script lang="ts">
   import Button from 'smelte/src/components/Button';
-import EndGameActions from '../components/EndGameActions.svelte';
-import EndGameDialog from '../components/EndGameDialog.svelte';
-import PiecesLeft from '../components/PiecesLeft.svelte';
-import SelectedPiece from '../components/SelectedPiece.svelte';
 
+  import Board from '../components/Board.svelte';
+  import EndGameActions from '../components/EndGameActions.svelte';
+  import EndGameDialog from '../components/EndGameDialog.svelte';
+  import PiecesLeft from '../components/PiecesLeft.svelte';
+  import SelectedPiece from '../components/SelectedPiece.svelte';
   import { WSKind } from '../data/websocket-kind.enum';
-  import { finished, gameState, ownTurn } from '../stores/game.store';
-  import {
-    declareWin,
-    errorWS,
-    join,
-    sendState,
-    winDeclarationWS
-  } from '../stores/websocket.store';
+  import { finished,gameState } from '../stores/game.store';
+  import { errorWS, join, sendState } from '../stores/websocket.store';
 
   export let roomKey: string;
 
@@ -45,7 +40,7 @@ import SelectedPiece from '../components/SelectedPiece.svelte';
     flex: 1;
   }
 
-  .game-area {
+  .board-area {
     flex: 2;
   }
 
@@ -65,17 +60,6 @@ import SelectedPiece from '../components/SelectedPiece.svelte';
     <Button light class="mt-4" href="/">Go Back</Button>
   </div>
 {:else}
-  <!-- <div class="flex flex-col justify-center items-center">
-    <div>This is the Game {roomKey}</div>
-    <div>Game state: {JSON.stringify($gameState, undefined, 2)}</div>
-    <Button on:click={restart} disabled={!$ownTurn}>Restart</Button>
-    <Button on:click={declareWin} disabled={!$ownTurn}>Win</Button>
-    <Button on:click={concede} disabled={!$winDeclarationWS}>Concede</Button>
-
-    {#if $concedeWS}
-      <div>You win!</div>
-    {/if}
-  </div> -->
   <header class="w-full bg-blue-500 rounded flex justify-center items-center text-gray-50 text-lg font-medium header">
     Game {roomKey}
   </header>
@@ -88,7 +72,9 @@ import SelectedPiece from '../components/SelectedPiece.svelte';
         <EndGameActions></EndGameActions>
       </div>
     </div>
-    <div class="bg-blue-200 h-full p-2 game-area"></div>
+    <div class="h-full p-2 flex justify-center items-center board-area">
+      <Board></Board>
+    </div>
     <div class="h-full p-2 pieces-left-area">
       <PiecesLeft></PiecesLeft>
     </div>
