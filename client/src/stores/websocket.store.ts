@@ -7,7 +7,7 @@ import { WSKind } from '../data/websocket-kind.enum';
 import { finished, gameState, getPlayer, setPlayer } from './game.store';
 
 const initialValue = { kind: WSKind.Init };
-const wsStore = websocketStore('ws://localhost:3000/', initialValue);
+const wsStore = websocketStore(' wss://quarto-online-server.herokuapp.com/', initialValue);
 
 export const createWS = derived(
   wsStore,
