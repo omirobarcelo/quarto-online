@@ -25,6 +25,10 @@
     --tw-bg-opacity: 0.8;
   }
 
+  .piece {
+    width: 80%;
+  }
+
   @media (min-width: 1280px) {
     .board {
       grid-template-rows: repeat(4, 130px);
@@ -48,7 +52,7 @@
       >
         {#if piece != null}
           <div class="w-full h-full flex justify-center items-center">
-            {piece}
+            <img class="piece" src={`/assets/pieces/${piece}.svg`} alt={piece.toUpperCase()} />
           </div>
         {:else}
           <div class="w-full h-full" on:click={() => placePiece(i, j)} />

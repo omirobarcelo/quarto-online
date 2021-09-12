@@ -32,6 +32,10 @@
     --tw-bg-opacity: 0.8;
   }
 
+  .piece {
+    width: 80%;
+  }
+
   @media (min-width: 1280px) {
     .content {
       grid-template-columns: repeat(2, 150px);
@@ -50,7 +54,7 @@
     <div class="bg-blue-50 border-2 border-blue-900 rounded cell" class:selectable>
       {#if $piecesLeft.includes(piece)}
         <div class="w-full h-full flex justify-center items-center" on:click={() => selectPiece(piece)}>
-          {piece}
+          <img class="piece" src={`/assets/pieces/${piece}.svg`} alt={piece.toUpperCase()} />
         </div>
       {/if}
     </div>
